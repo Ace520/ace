@@ -4,19 +4,23 @@
 <head>
     <meta charset="utf-8" />
     <style type="text/css" media="screen"></style>
-    <title>Ace is an embeddable code editor written in JavaScript.</title>
+    <title>Ace Code Editor</title>
     <style>
         html,
         body {
             margin: 0;
             padding: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
         }
 
         #editor {
             width: 100vw;
             height: 100vh;
+        }
+
+        .ace_editor {
+            margin: 0;
         }
     </style>
 </head>
@@ -27,8 +31,31 @@
     <script src="src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
     <script>
         var editor = ace.edit("editor");
-        editor.setTheme("ace/theme/twilight");
-        editor.session.setMode("ace/mode/javascript");
+        window.addEventListener('message', function (event) {
+            let data = event.data;
+            for (let i = 0; i < data.length; i++) {
+                let res;
+                switch (data[i].method) {
+                    case 'setTheme':
+                        editor.setTheme("ace/theme/" + data[i].content);
+                        break;
+                    case 'setMode':
+                        editor.session.setMode("ace/mode/" + data[i].content);
+                        break;
+                    case 'setValue':
+                        editor.setValue(data[i].content)
+                        break;
+                    case 'getValue':
+                        res = editor.getValue();
+                        break;
+                }
+                window.parent.postMessage({
+                    method: data[i].method,
+                    content: res
+                }, "*");
+            }
+
+        }, false);
     </script>
 
 </body>
