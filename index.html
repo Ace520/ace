@@ -31,6 +31,12 @@
     <script src="src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
     <script>
         var editor = ace.edit("editor");
+        editor.getSession().on('change', function () {
+            window.parent.postMessage({
+                method: "change",
+                content: editor.getValue()
+            }, "*");
+        });
         window.addEventListener('message', function (event) {
             let data = event.data;
             for (let i = 0; i < data.length; i++) {
