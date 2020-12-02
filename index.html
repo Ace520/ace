@@ -27,10 +27,34 @@
 
 <body>
     <pre id="editor"></pre>
-
     <script src="src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
     <script>
         var editor = ace.edit("editor");
+        var params = (function oneValues() {
+            var query = location.search.substr(1)
+            query = query.split('&')
+            var params = {}
+            for (let i = 0; i < query.length; i++) {
+                let q = query[i].split('=')
+                if (q.length === 2) {
+                    params[q[0]] = q[1]
+                }
+            }
+            return params;
+        }());
+        if (params.fontSize) {
+            editor.setFontSize(parseInt(params.fontSize));
+        }
+        if (params.theme) {
+            editor.setTheme("ace/theme/" + params.theme);
+        }
+        if (params.mode) {
+            editor.session.setMode("ace/mode/" + params.mode);
+        }
+        if (params.readOnly === 'true') {
+            editor.setReadOnly(params.readOnly)
+        }
+
         editor.getSession().on('change', function () {
             window.parent.postMessage({
                 method: "change",
@@ -39,29 +63,29 @@
         });
         window.addEventListener('message', function (event) {
             let data = event.data;
-            for (let i = 0; i < data.length; i++) {
-                let res;
-                switch (data[i].method) {
-                    case 'setTheme':
-                        editor.setTheme("ace/theme/" + data[i].content);
-                        break;
-                    case 'setMode':
-                        editor.session.setMode("ace/mode/" + data[i].content);
-                        break;
-                    case 'setValue':
-                        editor.setValue(data[i].content)
-                        break;
-                    case 'getValue':
-                        res = editor.getValue();
-                        break;
-                }
-                window.parent.postMessage({
-                    method: data[i].method,
-                    content: res
-                }, "*");
+            let res;
+            switch (data.method) {
+                case 'setValue':
+                    res = editor.setValue(data.content)
+                    break;
+                case 'getValue':
+                    res = editor.getValue();
+                    break;
             }
-
+            window.parent.postMessage({
+                method: data.method,
+                content: res
+            }, "*");
         }, false);
+
+        function getQueryString(name) {
+            let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            let r = window.location.search.substr(1).match(reg);
+            if (r != null) {
+                return decodeURIComponent(r[2]);
+            };
+            return null;
+        }
     </script>
 
 </body>

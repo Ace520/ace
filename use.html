@@ -22,25 +22,33 @@
 </head>
 
 <body>
-    <iframe class="ace-editor" id="ace-editor" src="./index.html" frameborder="no" border="0" marginwidth="0"
+    <iframe class="ace-editor" id="ace-editor" src="index.html?theme=twilight&fontSize=16&mode=javascript&readOnly=false" frameborder="no" border="0" marginwidth="0"
         marginheight="0" scrolling="no" allowtransparency="yes"></iframe>
 
     <script>
-        var aceIframe = document.getElementById("ace-editor").contentWindow;
+        var aceIframeWin = document.getElementById("ace-editor").contentWindow;
         setTimeout(function () {
-            aceIframe.postMessage([{
-                    method: 'setValue',
-                    content: '123'
-                },
-                {
-                    method: 'getValue',
-                    content: ''
-                }
-            ], "*");
+            //设置内容
+            aceIframeWin.postMessage({
+                method: 'setValue',
+                content: '123'
+            }, "*");
+            //获取内容
+            aceIframeWin.postMessage({
+                method: 'getValue'
+            }, "*");
+
+            //监听子页面返回
             window.addEventListener("message", function (event) {
                 let data = event.data;
                 switch (data.method) {
-                    case 'getValue':
+                    case 'setValue': //设置内容返回
+                        console.log(data.content);
+                        break;
+                    case 'getValue': //获取内容返回
+                        console.log(data.content);
+                        break;
+                    case 'change': //内容改变返回
                         console.log(data.content);
                         break;
                 }
