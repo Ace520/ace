@@ -62,6 +62,12 @@
                 content: editor.getValue()
             }, "*");
         });
+        
+        window.parent.postMessage({
+            method: "onload",
+            content: 'onload success'
+        }, "*");
+        
         window.addEventListener('message', function (event) {
             let data = event.data;
             let res;
