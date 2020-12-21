@@ -55,27 +55,26 @@
         if (params.readOnly === 'true') {
             editor.setReadOnly(params.readOnly)
         }
-
         editor.getSession().on('change', function () {
             window.parent.postMessage({
-                method: "change",
+                method: "onChange",
                 content: editor.getValue()
             }, "*");
         });
-        
+
         window.parent.postMessage({
-            method: "onload",
+            method: "onLoad",
             content: 'onload success'
         }, "*");
-        
+
         window.addEventListener('message', function (event) {
             let data = event.data;
             let res;
             switch (data.method) {
-                case 'setValue':
+                case 'setContent':
                     res = editor.setValue(data.content)
                     break;
-                case 'getValue':
+                case 'getContent':
                     res = editor.getValue();
                     break;
             }
